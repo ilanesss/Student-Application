@@ -49,14 +49,12 @@
             <h5 class="card-title fw-bold mb-3 text-secondary">Filter & Search Students</h5>
             <form th:action="@{/students}" method="get" class="row g-3 align-items-end">
 
-                <!-- Keyword Filter (Name / Surname) -->
                 <div class="col-md-4">
                     <label for="keyword" class="form-label fw-semibold">Search Name or Surname</label>
                     <input type="text" class="form-control" id="keyword" name="keyword"
                            th:value="${keyword}" placeholder="e.g. Alice">
                 </div>
 
-                <!-- Min Score Filter -->
                 <div class="col-md-3">
                     <label for="minExam" class="form-label fw-semibold">Min Score</label>
                     <input type="number" class="form-control" id="minExam" name="minExam"
@@ -96,7 +94,6 @@
                     </thead>
                     <tbody>
                     <tr th:each="std, iterStat : ${students}">
-                        <!-- Displays sequential row number on screen (1, 2, 3...) -->
                         <td class="fw-bold ps-3" th:text="${iterStat.count}">1</td>
                         <td th:text="${std.name}">John</td>
                         <td th:text="${std.surname}">Doe</td>
@@ -112,7 +109,6 @@
                                           th:text="${std.mark}">A</span>
                         </td>
                         <td class="text-center">
-                            <!-- Action buttons retain real PostgreSQL entity IDs (${std.id}) -->
                             <a th:href="@{/students/{id}(id=${std.id})}"
                                class="btn btn-dark-red btn-sm me-1">Details</a>
 

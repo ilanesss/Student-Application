@@ -16,7 +16,7 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    // Seed database with initial data if table is empty
+    // initial data
     @PostConstruct
     public void initData() {
         if (studentRepository.count() == 0) {
@@ -41,10 +41,9 @@ public class StudentService {
             throw new IllegalArgumentException("Exam result must be between 0 and 100.");
         }
 
-        // Automatic Grade Calculation
         student.setMark(calculateMark(student.getExam()));
 
-        // Save to PostgreSQL
+        // save to db
         studentRepository.save(student);
     }
 

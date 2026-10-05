@@ -19,10 +19,9 @@ public class StudentController {
 
     @GetMapping("/")
     public String homePage() {
-        return "index"; // or "index", matching your HTML file name in src/main/resources/templates/
+        return "index";
     }
 
-    // 1. List & Filter page
     @GetMapping("/students")
     public String getAllStudents(
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -40,32 +39,27 @@ public class StudentController {
         model.addAttribute("minExam", minScore);
         model.addAttribute("maxExam", maxScore);
 
-        return "students"; // students.html
+        return "students";
     }
 
-    // 2. Add Form Page - Mapped to both /students/add and /students/new
-    // MUST be declared BEFORE @GetMapping("/students/{id}")
     @GetMapping({"/students/add", "/students/new"})
     public String createStudentForm(Model model) {
         model.addAttribute("student", new Student());
         return "addstud"; // addstud.html
     }
 
-    // 3. Save Student
     @PostMapping("/students/save")
     public String saveStudent(@ModelAttribute("student") Student student) {
         studentService.addStudent(student);
         return "redirect:/students";
     }
 
-    // 4. Delete Student
     @PostMapping("/students/delete/{id}")
     public String deleteStudent(@PathVariable("id") Long id) {
         studentService.deleteStudent(id);
         return "redirect:/students";
     }
 
-    // 5. Details Page - Must come AFTER specific string paths like /students/add or /students/new
     @GetMapping("/students/{id}")
     public String getStudentDetails(@PathVariable("id") Long id, Model model) {
         model.addAttribute("student", studentService.getStudentById(id));
