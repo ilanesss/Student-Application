@@ -6,64 +6,80 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 public class StudentController {
 
     private final StudentService studentService;
 
-    // Dependency injection of Service layer
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
 
-    // 1. Home page
     @GetMapping("/")
-    public String index() {
-        return "index";
+    public String homePage() {
+        return "index"; // or "index", matching your HTML file name in src/main/resources/templates/
     }
 
-    // 2. Display all students
+    // 1. List & Filter page
     @GetMapping("/students")
-    public String getAllStudents(Model model) {
-        model.addAttribute("students", studentService.getAllStudents());
-        return "students";
+    public String getAllStudents(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "minExam", required = false) String minExam,
+            @RequestParam(name = "maxExam", required = false) String maxExam,
+            Model model) {
+
+        Integer minScore = parseInteger(minExam);
+        Integer maxScore = parseInteger(maxExam);
+
+        List<Student> students = studentService.searchStudents(keyword, minScore, maxScore);
+
+        model.addAttribute("students", students);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("minExam", minScore);
+        model.addAttribute("maxExam", maxScore);
+
+        return "students"; // students.html
     }
 
-    // 3. Open Add Student page
-    @GetMapping("/students/add")
-    public String addStudentPage(Model model) {
+    // 2. Add Form Page - Mapped to both /students/add and /students/new
+    // MUST be declared BEFORE @GetMapping("/students/{id}")
+    @GetMapping({"/students/add", "/students/new"})
+    public String createStudentForm(Model model) {
         model.addAttribute("student", new Student());
-        return "addstud";
+        return "addstud"; // addstud.html
     }
 
-    // 4. Handle form submission
-    @PostMapping("/students/add")
-    public String addStudent(@ModelAttribute Student student, Model model) {
-        try {
-            studentService.addStudent(student);
-            return "redirect:/students";
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("student", student);
-            return "addstud";
-        }
+    // 3. Save Student
+    @PostMapping("/students/save")
+    public String saveStudent(@ModelAttribute("student") Student student) {
+        studentService.addStudent(student);
+        return "redirect:/students";
     }
 
-    // 5. Display single student details
-    @GetMapping("/students/{id}")
-    public String getStudentDetails(@PathVariable("id") Long id, Model model) {
-        Student student = studentService.getStudentById(id);
-        if (student == null) {
-            return "redirect:/students";
-        }
-        model.addAttribute("student", student);
-        return "studinfo";
-    }
-
-    // 6. Delete student
+    // 4. Delete Student
     @PostMapping("/students/delete/{id}")
     public String deleteStudent(@PathVariable("id") Long id) {
         studentService.deleteStudent(id);
         return "redirect:/students";
+    }
+
+    // 5. Details Page - Must come AFTER specific string paths like /students/add or /students/new
+    @GetMapping("/students/{id}")
+    public String getStudentDetails(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("student", studentService.getStudentById(id));
+        return "studinfo"; // studinfo.html
+    }
+
+    private Integer parseInteger(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(input.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

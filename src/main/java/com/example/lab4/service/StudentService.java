@@ -59,4 +59,12 @@ public class StudentService {
         if (examScore >= 50) return "D";
         return "F";
     }
+
+    public List<Student> searchStudents(String keyword, Integer minExam, Integer maxExam) {
+        String formattedKeyword = (keyword != null && !keyword.trim().isEmpty())
+                ? "%" + keyword.trim() + "%"
+                : null;
+
+        return studentRepository.filterStudents(formattedKeyword, minExam, maxExam);
+    }
 }
